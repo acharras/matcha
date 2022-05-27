@@ -5,10 +5,10 @@ agent:
     type: e1-standard-2
     os_image: ubuntu2004
 blocks:
-  - name: Test
+  - name: Build
     task:
       jobs:
-        - name: go test
+        - name: Install
           commands:
             - sem-version go 1.18
             - export GO111MODULE=on
@@ -16,6 +16,6 @@ blocks:
             - 'export PATH=/home/semaphore/go/bin:$PATH'
             - checkout
             - cd backend/src
-            - go install ./...
-            - go test ./...
-            - go build -v .
+            - 'cache restore vendor-$SEMAPHORE_GIT_BRANCH-$(checksum go.mod),vendor-$SEMAPHORE_GIT_BRANCH,vendor-master'
+            - go mod vendor
+            - 'cache store vendor-$SEMAPHORE_GIT_BRANCH-$(checksum go.mod),vendor-$SEMAPHORE_GIT_BRANCH,vendor-master vendor'
